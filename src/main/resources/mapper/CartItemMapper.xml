@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brandpromo.mapper.CartItemMapper">
+
+    <select id="findByUserId" resultType="map">
+        SELECT c.id, c.product_id AS productId, c.quantity, c.checked,
+               p.name AS productName, p.price, p.image_url AS imageUrl,
+               p.stock, p.status AS productStatus,
+               (p.price * c.quantity) AS subtotal
+        FROM shopping_cart c
+        JOIN product p ON c.product_id = p.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="findById" resultType="com.brandpromo.entity.CartItem">
+        SELECT * FROM shopping_cart WHERE id = #{id}
+    </select>
+
+    <select id="findByUserAndProduct" resultType="com.brandpromo.entity.CartItem">
+        SELECT * FROM shopping_cart WHERE user_id = #{userId} AND product_id = #{productId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shopping_cart (user_id, product_id, quantity, checked)
+        VALUES (#{userId}, #{productId}, #{quantity}, #{checked})
+    </insert>
+
+    <update id="updateQuantity">
+        UPDATE shopping_cart SET quantity = #{quantity} WHERE id = #{id}
+    </update>
+
+    <update id="updateChecked">
+        UPDATE shopping_cart SET checked = #{checked} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM shopping_cart WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM shopping_cart WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteCheckedByUserId">
+        DELETE FROM shopping_cart WHERE user_id = #{userId} AND checked = 1
+    </delete>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM shopping_cart WHERE user_id = #{userId}
+    </select>
+</mapper>

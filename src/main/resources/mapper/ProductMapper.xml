@@ -66,4 +66,8 @@
     <select id="findAllCategories" resultType="string">
         SELECT DISTINCT category FROM product WHERE category IS NOT NULL ORDER BY category
     </select>
+
+    <update id="incrementViewCount">
+        UPDATE product SET view_count = COALESCE(view_count, 0) + 1 WHERE id = #{id}
+    </update>
 </mapper>

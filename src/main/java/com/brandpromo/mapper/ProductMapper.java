@@ -28,4 +28,6 @@ public interface ProductMapper {
     int deleteById(@Param("id") Long id);
 
     List<String> findAllCategories();
+
+    int incrementViewCount(@Param("id") Long id);
 }

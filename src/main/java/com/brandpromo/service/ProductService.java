@@ -29,6 +29,7 @@ public class ProductService {
     }
 
     public Product findById(Long id) {
+        productMapper.incrementViewCount(id);
         return productMapper.findById(id);
     }
 

@@ -9,12 +9,19 @@ public class Product {
     private Long id;
     private String name;
     private Long brandId;
+    private Long categoryId;
     private String category;
     private BigDecimal price;
+    private BigDecimal originalPrice;
+    private Integer stock;
     private String description;
     private String imageUrl;
+    private String images;
+    private String specs;
     private Integer status;     // 0=off-shelf, 1=on-shelf
     private Long merchantId;
+    private Integer salesCount;
+    private Integer viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

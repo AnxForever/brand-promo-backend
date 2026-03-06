@@ -62,4 +62,8 @@
     <update id="updateStatus">
         UPDATE advertisement SET status = #{status} WHERE id = #{id}
     </update>
+
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(*) FROM advertisement
+    </select>
 </mapper>

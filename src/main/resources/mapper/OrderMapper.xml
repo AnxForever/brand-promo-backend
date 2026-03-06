@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brandpromo.mapper.OrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (order_no, user_id, total_amount, discount_amount, pay_amount,
+                           status, payment_method, receiver_name, receiver_phone,
+                           receiver_address, coupon_id, remark)
+        VALUES (#{orderNo}, #{userId}, #{totalAmount}, #{discountAmount}, #{payAmount},
+                #{status}, #{paymentMethod}, #{receiverName}, #{receiverPhone},
+                #{receiverAddress}, #{couponId}, #{remark})
+    </insert>
+
+    <select id="findById" resultType="com.brandpromo.entity.Order">
+        SELECT * FROM orders WHERE id = #{id}
+    </select>
+
+    <select id="findByOrderNo" resultType="com.brandpromo.entity.Order">
+        SELECT * FROM orders WHERE order_no = #{orderNo}
+    </select>
+
+    <select id="findByUserId" resultType="com.brandpromo.entity.Order">
+        SELECT * FROM orders
+        <where>
+            user_id = #{userId}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM orders
+        <where>
+            user_id = #{userId}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE orders SET status = #{status},
+        <choose>
+            <when test="status == 1">pay_time = NOW(),</when>
+            <when test="status == 2">ship_time = NOW(),</when>
+            <when test="status == 3">finish_time = NOW(),</when>
+        </choose>
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updatePayment">
+        UPDATE orders SET status = #{status}, payment_method = #{paymentMethod}, pay_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM orders
+    </select>
+</mapper>

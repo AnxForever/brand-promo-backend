@@ -27,5 +27,5 @@ public interface AdMapper {
 
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
 
-    int countAll();
+    int countTotal();
 }

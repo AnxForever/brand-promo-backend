@@ -31,7 +31,7 @@ public class StatsController {
         Map<String, Object> stats = new HashMap<>();
         stats.put("userCount", userMapper.countAll());
         stats.put("productCount", productMapper.countAll(null, null, null));
-        stats.put("adCount", adMapper.countAll());
+        stats.put("adCount", adMapper.countTotal());
         return ApiResponse.ok(stats);
     }
 

@@ -1,7 +1,9 @@
 package com.brandpromo.aspect;
 
 import com.brandpromo.entity.OperationLog;
+import com.brandpromo.entity.User;
 import com.brandpromo.mapper.OperationLogMapper;
+import com.brandpromo.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class OperationLogAspect {
 
     private final OperationLogMapper operationLogMapper;
+    private final UserMapper userMapper;
 
     @AfterReturning("@annotation(org.springframework.web.bind.annotation.PostMapping) || " +
                      "@annotation(org.springframework.web.bind.annotation.PutMapping) || " +
@@ -42,6 +45,12 @@ public class OperationLogAspect {
             opLog.setAction(method + " " + uri);
             opLog.setTargetType(joinPoint.getSignature().getDeclaringType().getSimpleName());
             opLog.setIpAddress(request.getRemoteAddr());
+
+            String username = auth.getName();
+            User user = userMapper.findByUsername(username);
+            if (user != null) {
+                opLog.setUserId(user.getId());
+            }
 
             operationLogMapper.insert(opLog);
         } catch (Exception e) {
