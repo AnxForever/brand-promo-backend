@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brandpromo.mapper.UserCouponMapper">
+
+    <select id="findByUserId" resultType="map">
+        SELECT uc.id, uc.coupon_id AS couponId, uc.status, uc.order_id AS orderId,
+               uc.used_at AS usedAt, uc.created_at AS createdAt,
+               c.name, c.type, c.threshold AS minAmount, c.discount,
+               c.end_time AS endTime
+        FROM user_coupon uc
+        JOIN coupon c ON uc.coupon_id = c.id
+        WHERE uc.user_id = #{userId}
+        ORDER BY uc.created_at DESC
+    </select>
+
+    <select id="findByUserAndCoupon" resultType="com.brandpromo.entity.UserCoupon">
+        SELECT * FROM user_coupon WHERE user_id = #{userId} AND coupon_id = #{couponId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_coupon (user_id, coupon_id, status)
+        VALUES (#{userId}, #{couponId}, #{status})
+    </insert>
+
+    <update id="markUsed">
+        UPDATE user_coupon SET status = 1, order_id = #{orderId}, used_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="resetByOrderId">
+        UPDATE user_coupon SET status = 0, order_id = NULL, used_at = NULL
+        WHERE order_id = #{orderId} AND status = 1
+    </update>
+</mapper>

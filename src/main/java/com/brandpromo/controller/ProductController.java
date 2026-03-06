@@ -22,9 +22,10 @@ public class ProductController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Long merchantId,
+            @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.ok(productService.findAll(keyword, category, merchantId, page, size));
+        return ApiResponse.ok(productService.findAll(keyword, category, merchantId, sort, page, size));
     }
 
     @GetMapping("/{id}")

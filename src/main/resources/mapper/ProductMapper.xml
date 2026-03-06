@@ -16,7 +16,13 @@
                 AND merchant_id = #{merchantId}
             </if>
         </where>
-        ORDER BY created_at DESC
+        <choose>
+            <when test="sort == 'price_asc'">ORDER BY price ASC</when>
+            <when test="sort == 'price_desc'">ORDER BY price DESC</when>
+            <when test="sort == 'sales'">ORDER BY COALESCE(sales_count, 0) DESC</when>
+            <when test="sort == 'newest'">ORDER BY created_at DESC</when>
+            <otherwise>ORDER BY created_at DESC</otherwise>
+        </choose>
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -37,7 +43,10 @@
     </select>
 
     <select id="findById" resultType="com.brandpromo.entity.Product">
-        SELECT * FROM product WHERE id = #{id}
+        SELECT p.*, b.name AS brand_name
+        FROM product p
+        LEFT JOIN brand b ON p.brand_id = b.id
+        WHERE p.id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -69,5 +78,36 @@
 
     <update id="incrementViewCount">
         UPDATE product SET view_count = COALESCE(view_count, 0) + 1 WHERE id = #{id}
+    </update>
+
+    <select id="findPopular" resultType="com.brandpromo.entity.Product">
+        SELECT * FROM product
+        WHERE status = 1
+        ORDER BY (COALESCE(sales_count, 0) * 3 + COALESCE(view_count, 0)) DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findByCategoryIn" resultType="com.brandpromo.entity.Product">
+        SELECT * FROM product
+        WHERE status = 1
+          AND category IN
+        <foreach collection="categories" item="cat" open="(" separator="," close=")">
+            #{cat}
+        </foreach>
+        <if test="excludeIds != null and excludeIds.size() > 0">
+            AND id NOT IN
+            <foreach collection="excludeIds" item="eid" open="(" separator="," close=")">
+                #{eid}
+            </foreach>
+        </if>
+        ORDER BY COALESCE(sales_count, 0) DESC
+        LIMIT #{limit}
+    </select>
+
+    <update id="decrementStock">
+        UPDATE product
+        SET stock = COALESCE(stock, 0) - #{quantity},
+            sales_count = COALESCE(sales_count, 0) + #{quantity}
+        WHERE id = #{id} AND COALESCE(stock, 0) >= #{quantity}
     </update>
 </mapper>

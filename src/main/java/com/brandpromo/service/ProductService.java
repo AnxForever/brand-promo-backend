@@ -15,9 +15,9 @@ public class ProductService {
 
     private final ProductMapper productMapper;
 
-    public Map<String, Object> findAll(String keyword, String category, Long merchantId, int page, int size) {
+    public Map<String, Object> findAll(String keyword, String category, Long merchantId, String sort, int page, int size) {
         int offset = (page - 1) * size;
-        List<Product> list = productMapper.findAll(keyword, category, merchantId, offset, size);
+        List<Product> list = productMapper.findAll(keyword, category, merchantId, sort, offset, size);
         int total = productMapper.countAll(keyword, category, merchantId);
 
         Map<String, Object> result = new HashMap<>();

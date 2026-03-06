@@ -9,6 +9,7 @@ public class Product {
     private Long id;
     private String name;
     private Long brandId;
+    private String brandName;   // 来自 JOIN brand 表
     private Long categoryId;
     private String category;
     private BigDecimal price;
