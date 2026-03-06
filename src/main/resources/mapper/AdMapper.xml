@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brandpromo.mapper.AdMapper">
+
+    <select id="findAll" resultType="com.brandpromo.entity.Advertisement">
+        SELECT * FROM advertisement
+        <where>
+            <if test="merchantId != null">
+                AND merchant_id = #{merchantId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM advertisement
+        <where>
+            <if test="merchantId != null">
+                AND merchant_id = #{merchantId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultType="com.brandpromo.entity.Advertisement">
+        SELECT * FROM advertisement WHERE id = #{id}
+    </select>
+
+    <select id="findActive" resultType="com.brandpromo.entity.Advertisement">
+        SELECT * FROM advertisement
+        WHERE status = 1
+          AND start_time &lt;= NOW()
+          AND end_time &gt;= NOW()
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO advertisement (title, image_url, link_url, product_id, merchant_id, position, start_time, end_time, status)
+        VALUES (#{title}, #{imageUrl}, #{linkUrl}, #{productId}, #{merchantId}, #{position}, #{startTime}, #{endTime}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE advertisement
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="linkUrl != null">link_url = #{linkUrl},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE advertisement SET status = #{status} WHERE id = #{id}
+    </update>
+</mapper>
