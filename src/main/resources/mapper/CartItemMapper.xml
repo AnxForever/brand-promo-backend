@@ -3,9 +3,9 @@
 <mapper namespace="com.brandpromo.mapper.CartItemMapper">
 
     <select id="findByUserId" resultType="map">
-        SELECT c.id, c.product_id AS productId, c.quantity, c.checked,
-               p.name AS productName, p.price, p.image_url AS imageUrl,
-               p.stock, p.status AS productStatus,
+        SELECT c.id, c.product_id AS "productId", c.quantity, c.checked,
+               p.name AS "productName", p.price, p.image_url AS "imageUrl",
+               p.stock, p.status AS "productStatus",
                (p.price * c.quantity) AS subtotal
         FROM shopping_cart c
         JOIN product p ON c.product_id = p.id

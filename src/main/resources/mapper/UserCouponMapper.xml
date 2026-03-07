@@ -3,10 +3,10 @@
 <mapper namespace="com.brandpromo.mapper.UserCouponMapper">
 
     <select id="findByUserId" resultType="map">
-        SELECT uc.id, uc.coupon_id AS couponId, uc.status, uc.order_id AS orderId,
-               uc.used_at AS usedAt, uc.created_at AS createdAt,
-               c.name, c.type, c.threshold AS minAmount, c.discount,
-               c.end_time AS endTime
+        SELECT uc.id, uc.coupon_id AS "couponId", uc.status, uc.order_id AS "orderId",
+               uc.used_at AS "usedAt", uc.created_at AS "createdAt",
+               c.name, c.type, c.threshold AS "minAmount", c.discount,
+               c.end_time AS "endTime"
         FROM user_coupon uc
         JOIN coupon c ON uc.coupon_id = c.id
         WHERE uc.user_id = #{userId}

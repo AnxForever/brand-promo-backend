@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS advertisement (
     created_at    TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS cart_item (
+CREATE TABLE IF NOT EXISTS shopping_cart (
     id            BIGSERIAL PRIMARY KEY,
     user_id       BIGINT       NOT NULL,
     product_id    BIGINT       NOT NULL REFERENCES product(id),
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS user_favorite (
 CREATE INDEX IF NOT EXISTS idx_product_brand      ON product(brand_id);
 CREATE INDEX IF NOT EXISTS idx_product_category    ON product(category_id);
 CREATE INDEX IF NOT EXISTS idx_product_merchant    ON product(merchant_id);
-CREATE INDEX IF NOT EXISTS idx_cart_user           ON cart_item(user_id);
+CREATE INDEX IF NOT EXISTS idx_cart_user           ON shopping_cart(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_user          ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_item_order    ON order_item(order_id);
 CREATE INDEX IF NOT EXISTS idx_user_coupon_user    ON user_coupon(user_id);

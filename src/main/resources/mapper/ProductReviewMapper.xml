@@ -3,9 +3,9 @@
 <mapper namespace="com.brandpromo.mapper.ProductReviewMapper">
 
     <select id="findByProductId" resultType="map">
-        SELECT r.id, r.user_id AS userId, r.product_id AS productId,
-               r.order_id AS orderId, r.rating, r.content, r.images,
-               r.status, r.created_at AS createdAt,
+        SELECT r.id, r.user_id AS "userId", r.product_id AS "productId",
+               r.order_id AS "orderId", r.rating, r.content, r.images,
+               r.status, r.created_at AS "createdAt",
                u.nickname AS username
         FROM product_review r
         LEFT JOIN sys_user u ON r.user_id = u.id
