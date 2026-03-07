@@ -22,7 +22,7 @@ mybatis:
 
 # JWT Configuration
 jwt:
-  secret: your-256-bit-secret-key-change-this-in-production-please
+  secret: ${JWT_SECRET:}
   expiration: 86400000  # 24 hours in milliseconds
 
 # Swagger

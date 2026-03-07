@@ -3,6 +3,7 @@ package com.brandpromo.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +14,24 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:}")
     private String secret;
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    @PostConstruct
+    public void validateSecret() {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                    "JWT_SECRET environment variable is not set. "
+                    + "Application cannot start without a valid JWT secret.");
+        }
+        if (secret.length() < 32) {
+            throw new IllegalStateException(
+                    "JWT_SECRET must be at least 32 characters for HMAC-SHA256.");
+        }
+    }
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));

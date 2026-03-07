@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import com.brandpromo.exception.BusinessException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -42,7 +43,7 @@ public class OrderService {
                 .toList();
 
         if (checkedItems.isEmpty()) {
-            throw new RuntimeException("购物车中没有选中的商品");
+            throw new BusinessException("购物车中没有选中的商品");
         }
 
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -66,23 +67,23 @@ public class OrderService {
             // 1. 查询优惠券
             Coupon coupon = couponMapper.findById(couponId);
             if (coupon == null || coupon.getStatus() != 1) {
-                throw new RuntimeException("优惠券不存在或已下架");
+                throw new BusinessException("优惠券不存在或已下架");
             }
             // 2. 验证用户是否已领取且未使用
             UserCoupon uc = userCouponMapper.findByUserAndCoupon(userId, couponId);
             if (uc == null) {
-                throw new RuntimeException("您尚未领取该优惠券");
+                throw new BusinessException("您尚未领取该优惠券");
             }
             if (uc.getStatus() != 0) {
-                throw new RuntimeException("优惠券已使用或已过期");
+                throw new BusinessException("优惠券已使用或已过期");
             }
             // 3. 验证是否过期
             if (coupon.getEndTime() != null && coupon.getEndTime().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("优惠券已过期");
+                throw new BusinessException("优惠券已过期");
             }
             // 4. 验证门槛
             if (coupon.getThreshold() != null && totalAmount.compareTo(coupon.getThreshold()) < 0) {
-                throw new RuntimeException("订单金额未达到优惠券使用门槛（满" + coupon.getThreshold() + "可用）");
+                throw new BusinessException("订单金额未达到优惠券使用门槛（满" + coupon.getThreshold() + "可用）");
             }
             // 5. 按类型计算折扣
             if (coupon.getType() == null || coupon.getType() == 1) {
@@ -127,7 +128,7 @@ public class OrderService {
         for (OrderItem oi : orderItems) {
             int rows = productMapper.decrementStock(oi.getProductId(), oi.getQuantity());
             if (rows == 0) {
-                throw new RuntimeException("商品「" + oi.getProductName() + "」库存不足");
+                throw new BusinessException("商品「" + oi.getProductName() + "」库存不足");
             }
         }
 
@@ -167,7 +168,7 @@ public class OrderService {
     public Map<String, Object> getOrderDetail(Long id) {
         Order order = orderMapper.findById(id);
         if (order == null) {
-            throw new RuntimeException("订单不存在");
+            throw new BusinessException("订单不存在");
         }
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("order", order);
@@ -179,7 +180,7 @@ public class OrderService {
     public void payOrder(Long id, String paymentMethod) {
         Order order = orderMapper.findById(id);
         if (order == null || order.getStatus() != 0) {
-            throw new RuntimeException("订单不可支付");
+            throw new BusinessException("订单不可支付");
         }
         orderMapper.updatePayment(id, 1, paymentMethod);
     }
@@ -188,7 +189,7 @@ public class OrderService {
     public void cancelOrder(Long id) {
         Order order = orderMapper.findById(id);
         if (order == null || order.getStatus() != 0) {
-            throw new RuntimeException("仅待付款订单可取消");
+            throw new BusinessException("仅待付款订单可取消");
         }
         orderMapper.updateStatus(id, 4);
 
@@ -207,7 +208,7 @@ public class OrderService {
     public void shipOrder(Long id) {
         Order order = orderMapper.findById(id);
         if (order == null || order.getStatus() != 1) {
-            throw new RuntimeException("仅已付款订单可发货");
+            throw new BusinessException("仅已付款订单可发货");
         }
         orderMapper.updateStatus(id, 2);
     }
@@ -215,7 +216,7 @@ public class OrderService {
     public void completeOrder(Long id) {
         Order order = orderMapper.findById(id);
         if (order == null || order.getStatus() != 2) {
-            throw new RuntimeException("仅已发货订单可确认收货");
+            throw new BusinessException("仅已发货订单可确认收货");
         }
         orderMapper.updateStatus(id, 3);
     }

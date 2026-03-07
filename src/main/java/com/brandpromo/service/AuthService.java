@@ -4,6 +4,7 @@ import com.brandpromo.dto.LoginRequest;
 import com.brandpromo.dto.LoginResponse;
 import com.brandpromo.dto.RegisterRequest;
 import com.brandpromo.entity.User;
+import com.brandpromo.exception.BusinessException;
 import com.brandpromo.mapper.UserMapper;
 import com.brandpromo.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +22,13 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         User user = userMapper.findByUsername(request.getUsername());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new BusinessException("User not found");
         }
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new BusinessException("Invalid password");
         }
         if (user.getStatus() == 0) {
-            throw new RuntimeException("Account is disabled");
+            throw new BusinessException("Account is disabled");
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
@@ -36,7 +37,7 @@ public class AuthService {
 
     public User register(RegisterRequest request) {
         if (userMapper.findByUsername(request.getUsername()) != null) {
-            throw new RuntimeException("Username already exists");
+            throw new BusinessException("Username already exists");
         }
 
         User user = new User();

@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.brandpromo.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -80,16 +81,16 @@ public class CouponService {
 
         Coupon coupon = couponMapper.findById(couponId);
         if (coupon == null || coupon.getStatus() != 1) {
-            throw new RuntimeException("优惠券不存在或已下架");
+            throw new BusinessException("优惠券不存在或已下架");
         }
         if (coupon.getEndTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("优惠券已过期");
+            throw new BusinessException("优惠券已过期");
         }
         if (coupon.getTotalCount() > 0 && coupon.getUsedCount() >= coupon.getTotalCount()) {
-            throw new RuntimeException("优惠券已领完");
+            throw new BusinessException("优惠券已领完");
         }
         if (userCouponMapper.findByUserAndCoupon(userId, couponId) != null) {
-            throw new RuntimeException("您已领取过该优惠券");
+            throw new BusinessException("您已领取过该优惠券");
         }
 
         UserCoupon uc = new UserCoupon();
