@@ -183,5 +183,5 @@ CREATE INDEX IF NOT EXISTS idx_oplog_created       ON operation_log(created_at);
 
 -- Seed admin user (password: admin123, BCrypt encoded)
 INSERT INTO sys_user (username, password, role, nickname)
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', 'ADMIN', 'Administrator')
+VALUES ('admin', '$2a$10$1OhHVXwzgZ30F1Pa1LIryuL0pnarVZMHmWGKrh71tbYuRZNcLxI9.', 'ADMIN', 'Administrator')
 ON CONFLICT (username) DO NOTHING;
