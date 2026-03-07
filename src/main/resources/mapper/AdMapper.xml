@@ -13,7 +13,7 @@
             </if>
         </where>
         ORDER BY created_at DESC
-        LIMIT #{offset}, #{limit}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="int">

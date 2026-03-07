@@ -11,7 +11,7 @@
         LEFT JOIN sys_user u ON r.user_id = u.id
         WHERE r.product_id = #{productId} AND r.status = 1
         ORDER BY r.created_at DESC
-        LIMIT #{offset}, #{limit}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countByProductId" resultType="int">

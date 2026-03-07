@@ -23,7 +23,7 @@
             <when test="sort == 'newest'">ORDER BY created_at DESC</when>
             <otherwise>ORDER BY created_at DESC</otherwise>
         </choose>
-        LIMIT #{offset}, #{limit}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="int">
