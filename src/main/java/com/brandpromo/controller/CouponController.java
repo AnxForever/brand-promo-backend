@@ -4,6 +4,7 @@ import com.brandpromo.dto.ApiResponse;
 import com.brandpromo.entity.Coupon;
 import com.brandpromo.service.CouponService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -42,6 +43,7 @@ public class CouponController {
 
     /** 新建优惠券（管理员） */
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Coupon> create(@RequestBody Map<String, Object> body) {
         Coupon coupon = mapFromRequest(body);
         return ApiResponse.ok(couponService.createCoupon(coupon));
@@ -49,6 +51,7 @@ public class CouponController {
 
     /** 更新优惠券（管理员） */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Coupon> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         Coupon coupon = mapFromRequest(body);
         return ApiResponse.ok(couponService.updateCoupon(id, coupon));
@@ -56,6 +59,7 @@ public class CouponController {
 
     /** 删除优惠券（管理员） */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         couponService.deleteCoupon(id);
         return ApiResponse.ok("删除成功", null);

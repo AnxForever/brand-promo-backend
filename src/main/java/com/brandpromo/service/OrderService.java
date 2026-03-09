@@ -26,10 +26,44 @@ public class OrderService {
     private final CouponMapper couponMapper;
     private final UserCouponMapper userCouponMapper;
 
-    private Long getCurrentUserId() {
+    private User getCurrentUser() {
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null) {
+            throw new BusinessException("用户未登录");
+        }
+
         User user = userMapper.findByUsername(auth.getName());
-        return user.getId();
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        return user;
+    }
+
+    private Long getCurrentUserId() {
+        return getCurrentUser().getId();
+    }
+
+    private Order getOrderOrThrow(Long id) {
+        Order order = orderMapper.findById(id);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        return order;
+    }
+
+    private void ensureOrderAccessible(Order order) {
+        User currentUser = getCurrentUser();
+        boolean isAdmin = "ADMIN".equals(currentUser.getRole());
+        if (!isAdmin && !Objects.equals(order.getUserId(), currentUser.getId())) {
+            throw new BusinessException("无权限访问该订单");
+        }
+    }
+
+    private void ensureOrderOwner(Order order) {
+        Long currentUserId = getCurrentUserId();
+        if (!Objects.equals(order.getUserId(), currentUserId)) {
+            throw new BusinessException("无权限操作该订单");
+        }
     }
 
     @Transactional
@@ -166,10 +200,9 @@ public class OrderService {
     }
 
     public Map<String, Object> getOrderDetail(Long id) {
-        Order order = orderMapper.findById(id);
-        if (order == null) {
-            throw new BusinessException("订单不存在");
-        }
+        Order order = getOrderOrThrow(id);
+        ensureOrderAccessible(order);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("order", order);
         result.put("items", orderItemMapper.findByOrderId(id));
@@ -178,8 +211,9 @@ public class OrderService {
 
     @Transactional
     public void payOrder(Long id, String paymentMethod) {
-        Order order = orderMapper.findById(id);
-        if (order == null || order.getStatus() != 0) {
+        Order order = getOrderOrThrow(id);
+        ensureOrderOwner(order);
+        if (order.getStatus() != 0) {
             throw new BusinessException("订单不可支付");
         }
         orderMapper.updatePayment(id, 1, paymentMethod);
@@ -187,8 +221,9 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(Long id) {
-        Order order = orderMapper.findById(id);
-        if (order == null || order.getStatus() != 0) {
+        Order order = getOrderOrThrow(id);
+        ensureOrderOwner(order);
+        if (order.getStatus() != 0) {
             throw new BusinessException("仅待付款订单可取消");
         }
         orderMapper.updateStatus(id, 4);
@@ -214,8 +249,9 @@ public class OrderService {
     }
 
     public void completeOrder(Long id) {
-        Order order = orderMapper.findById(id);
-        if (order == null || order.getStatus() != 2) {
+        Order order = getOrderOrThrow(id);
+        ensureOrderOwner(order);
+        if (order.getStatus() != 2) {
             throw new BusinessException("仅已发货订单可确认收货");
         }
         orderMapper.updateStatus(id, 3);

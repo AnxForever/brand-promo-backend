@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brandpromo.mapper.UserFavoriteMapper">
+
+    <insert id="insertIgnore">
+        INSERT INTO user_favorite (user_id, product_id)
+        VALUES (#{userId}, #{productId})
+        ON CONFLICT (user_id, product_id) DO NOTHING
+    </insert>
+
+    <delete id="deleteByUserAndProduct">
+        DELETE FROM user_favorite
+        WHERE user_id = #{userId} AND product_id = #{productId}
+    </delete>
+
+    <select id="countByUserAndProduct" resultType="int">
+        SELECT COUNT(*)
+        FROM user_favorite
+        WHERE user_id = #{userId} AND product_id = #{productId}
+    </select>
+
+    <select id="findProductsByUserId" resultType="com.brandpromo.entity.Product">
+        SELECT p.*, b.name AS brand_name
+        FROM user_favorite uf
+        JOIN product p ON uf.product_id = p.id
+        LEFT JOIN brand b ON p.brand_id = b.id
+        WHERE uf.user_id = #{userId}
+        ORDER BY uf.created_at DESC
+    </select>
+</mapper>
