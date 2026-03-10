@@ -35,3 +35,7 @@ springdoc:
 logging:
   level:
     com.brandpromo: debug
+
+app:
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,https://*.vercel.app}
