@@ -2,26 +2,67 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.brandpromo.mapper.ProductMapper">
 
+    <sql id="promoActiveCondition">
+        p.promo_status = 1
+        AND p.promo_price IS NOT NULL
+        AND (p.promo_start_time IS NULL OR p.promo_start_time &lt;= NOW())
+        AND (p.promo_end_time IS NULL OR p.promo_end_time &gt;= NOW())
+    </sql>
+
+    <sql id="effectivePriceExpr">
+        CASE WHEN <include refid="promoActiveCondition" /> THEN p.promo_price ELSE p.price END
+    </sql>
+
+    <sql id="productSelectColumns">
+        p.id,
+        p.name,
+        p.brand_id,
+        b.name AS brand_name,
+        p.category_id,
+        p.category,
+        <include refid="effectivePriceExpr" /> AS price,
+        CASE WHEN <include refid="promoActiveCondition" /> THEN p.price ELSE p.original_price END AS original_price,
+        p.price AS base_price,
+        p.stock,
+        p.description,
+        p.image_url,
+        p.images,
+        p.specs,
+        p.status,
+        p.merchant_id,
+        p.sales_count,
+        p.view_count,
+        p.promo_price,
+        p.promo_start_time,
+        p.promo_end_time,
+        p.promo_status,
+        CASE WHEN <include refid="promoActiveCondition" /> THEN 1 ELSE 0 END AS promo_active,
+        p.created_at,
+        p.updated_at
+    </sql>
+
     <select id="findAll" resultType="com.brandpromo.entity.Product">
-        SELECT * FROM product
+        SELECT <include refid="productSelectColumns" />
+        FROM product p
+        LEFT JOIN brand b ON p.brand_id = b.id
         <where>
             <if test="keyword != null and keyword != ''">
-                AND (name LIKE CONCAT('%', #{keyword}, '%')
-                     OR description LIKE CONCAT('%', #{keyword}, '%'))
+                AND (p.name LIKE CONCAT('%', #{keyword}, '%')
+                     OR p.description LIKE CONCAT('%', #{keyword}, '%'))
             </if>
             <if test="category != null and category != ''">
-                AND category = #{category}
+                AND p.category = #{category}
             </if>
             <if test="merchantId != null">
-                AND merchant_id = #{merchantId}
+                AND p.merchant_id = #{merchantId}
             </if>
         </where>
         <choose>
-            <when test="sort == 'price_asc'">ORDER BY price ASC</when>
-            <when test="sort == 'price_desc'">ORDER BY price DESC</when>
-            <when test="sort == 'sales'">ORDER BY COALESCE(sales_count, 0) DESC</when>
-            <when test="sort == 'newest'">ORDER BY created_at DESC</when>
-            <otherwise>ORDER BY created_at DESC</otherwise>
+            <when test="sort == 'price_asc'">ORDER BY <include refid="effectivePriceExpr" /> ASC</when>
+            <when test="sort == 'price_desc'">ORDER BY <include refid="effectivePriceExpr" /> DESC</when>
+            <when test="sort == 'sales'">ORDER BY COALESCE(p.sales_count, 0) DESC</when>
+            <when test="sort == 'newest'">ORDER BY p.created_at DESC</when>
+            <otherwise>ORDER BY p.created_at DESC</otherwise>
         </choose>
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -43,15 +84,23 @@
     </select>
 
     <select id="findById" resultType="com.brandpromo.entity.Product">
-        SELECT p.*, b.name AS brand_name
+        SELECT <include refid="productSelectColumns" />
         FROM product p
         LEFT JOIN brand b ON p.brand_id = b.id
         WHERE p.id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO product (name, brand_id, category, price, stock, description, image_url, status, merchant_id)
-        VALUES (#{name}, #{brandId}, #{category}, #{price}, #{stock}, #{description}, #{imageUrl}, #{status}, #{merchantId})
+        INSERT INTO product (
+            name, brand_id, category_id, category, price, original_price, stock,
+            description, image_url, images, specs, status, merchant_id,
+            promo_price, promo_start_time, promo_end_time, promo_status
+        )
+        VALUES (
+            #{name}, #{brandId}, #{categoryId}, #{category}, #{price}, #{originalPrice}, #{stock},
+            #{description}, #{imageUrl}, #{images}, #{specs}, #{status}, #{merchantId},
+            #{promoPrice}, #{promoStartTime}, #{promoEndTime}, #{promoStatus}
+        )
     </insert>
 
     <update id="update">
@@ -59,12 +108,35 @@
         <set>
             <if test="name != null">name = #{name},</if>
             <if test="brandId != null">brand_id = #{brandId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
             <if test="category != null">category = #{category},</if>
             <if test="price != null">price = #{price},</if>
+            <if test="originalPrice != null">original_price = #{originalPrice},</if>
             <if test="stock != null">stock = #{stock},</if>
             <if test="description != null">description = #{description},</if>
             <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="images != null">images = #{images},</if>
+            <if test="specs != null">specs = #{specs},</if>
             <if test="status != null">status = #{status},</if>
+            <choose>
+                <when test="promoStatus != null and promoStatus == 1">
+                    promo_status = 1,
+                    promo_price = #{promoPrice},
+                    promo_start_time = #{promoStartTime},
+                    promo_end_time = #{promoEndTime},
+                </when>
+                <when test="promoStatus != null">
+                    promo_status = #{promoStatus},
+                    promo_price = NULL,
+                    promo_start_time = NULL,
+                    promo_end_time = NULL,
+                </when>
+                <otherwise>
+                    <if test="promoPrice != null">promo_price = #{promoPrice},</if>
+                    <if test="promoStartTime != null">promo_start_time = #{promoStartTime},</if>
+                    <if test="promoEndTime != null">promo_end_time = #{promoEndTime},</if>
+                </otherwise>
+            </choose>
         </set>
         WHERE id = #{id}
     </update>
@@ -82,26 +154,30 @@
     </update>
 
     <select id="findPopular" resultType="com.brandpromo.entity.Product">
-        SELECT * FROM product
-        WHERE status = 1
-        ORDER BY (COALESCE(sales_count, 0) * 3 + COALESCE(view_count, 0)) DESC
+        SELECT <include refid="productSelectColumns" />
+        FROM product p
+        LEFT JOIN brand b ON p.brand_id = b.id
+        WHERE p.status = 1
+        ORDER BY (COALESCE(p.sales_count, 0) * 3 + COALESCE(p.view_count, 0)) DESC
         LIMIT #{limit}
     </select>
 
     <select id="findByCategoryIn" resultType="com.brandpromo.entity.Product">
-        SELECT * FROM product
-        WHERE status = 1
-          AND category IN
+        SELECT <include refid="productSelectColumns" />
+        FROM product p
+        LEFT JOIN brand b ON p.brand_id = b.id
+        WHERE p.status = 1
+          AND p.category IN
         <foreach collection="categories" item="cat" open="(" separator="," close=")">
             #{cat}
         </foreach>
         <if test="excludeIds != null and excludeIds.size() > 0">
-            AND id NOT IN
+            AND p.id NOT IN
             <foreach collection="excludeIds" item="eid" open="(" separator="," close=")">
                 #{eid}
             </foreach>
         </if>
-        ORDER BY COALESCE(sales_count, 0) DESC
+        ORDER BY COALESCE(p.sales_count, 0) DESC
         LIMIT #{limit}
     </select>
 

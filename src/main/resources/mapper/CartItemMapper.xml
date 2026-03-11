@@ -2,11 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.brandpromo.mapper.CartItemMapper">
 
+    <sql id="promoActiveCondition">
+        p.promo_status = 1
+        AND p.promo_price IS NOT NULL
+        AND (p.promo_start_time IS NULL OR p.promo_start_time &lt;= NOW())
+        AND (p.promo_end_time IS NULL OR p.promo_end_time &gt;= NOW())
+    </sql>
+
+    <sql id="effectivePriceExpr">
+        CASE WHEN <include refid="promoActiveCondition" /> THEN p.promo_price ELSE p.price END
+    </sql>
+
     <select id="findByUserId" resultType="map">
         SELECT c.id, c.product_id AS "productId", c.quantity, c.checked,
-               p.name AS "productName", p.price, p.image_url AS "imageUrl",
+               p.name AS "productName",
+               <include refid="effectivePriceExpr" /> AS price,
+               p.price AS "basePrice",
+               CASE WHEN <include refid="promoActiveCondition" /> THEN p.price ELSE p.original_price END AS "originalPrice",
+               p.promo_price AS "promoPrice",
+               p.promo_start_time AS "promoStartTime",
+               p.promo_end_time AS "promoEndTime",
+               CASE WHEN <include refid="promoActiveCondition" /> THEN 1 ELSE 0 END AS "promoActive",
+               p.image_url AS "imageUrl",
                p.stock, p.status AS "productStatus",
-               (p.price * c.quantity) AS subtotal
+               (<include refid="effectivePriceExpr" /> * c.quantity) AS subtotal
         FROM shopping_cart c
         JOIN product p ON c.product_id = p.id
         WHERE c.user_id = #{userId}

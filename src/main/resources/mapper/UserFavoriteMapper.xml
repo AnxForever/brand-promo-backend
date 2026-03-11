@@ -2,6 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.brandpromo.mapper.UserFavoriteMapper">
 
+    <sql id="promoActiveCondition">
+        p.promo_status = 1
+        AND p.promo_price IS NOT NULL
+        AND (p.promo_start_time IS NULL OR p.promo_start_time &lt;= NOW())
+        AND (p.promo_end_time IS NULL OR p.promo_end_time &gt;= NOW())
+    </sql>
+
+    <sql id="effectivePriceExpr">
+        CASE WHEN <include refid="promoActiveCondition" /> THEN p.promo_price ELSE p.price END
+    </sql>
+
     <insert id="insertIgnore">
         INSERT INTO user_favorite (user_id, product_id)
         VALUES (#{userId}, #{productId})
@@ -20,7 +31,15 @@
     </select>
 
     <select id="findProductsByUserId" resultType="com.brandpromo.entity.Product">
-        SELECT p.*, b.name AS brand_name
+        SELECT p.id, p.name, p.brand_id, b.name AS brand_name, p.category_id, p.category,
+               <include refid="effectivePriceExpr" /> AS price,
+               CASE WHEN <include refid="promoActiveCondition" /> THEN p.price ELSE p.original_price END AS original_price,
+               p.price AS base_price,
+               p.stock, p.description, p.image_url, p.images, p.specs, p.status,
+               p.merchant_id, p.sales_count, p.view_count, p.promo_price, p.promo_start_time,
+               p.promo_end_time, p.promo_status,
+               CASE WHEN <include refid="promoActiveCondition" /> THEN 1 ELSE 0 END AS promo_active,
+               p.created_at, p.updated_at
         FROM user_favorite uf
         JOIN product p ON uf.product_id = p.id
         LEFT JOIN brand b ON p.brand_id = b.id

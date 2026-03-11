@@ -34,13 +34,15 @@ public class ProductService {
     }
 
     public Product create(Product product) {
-        product.setStatus(1);
+        normalizeProduct(product);
+        product.setStatus(product.getStatus() == null ? 1 : product.getStatus());
         productMapper.insert(product);
-        return product;
+        return productMapper.findById(product.getId());
     }
 
     public Product update(Long id, Product product) {
         product.setId(id);
+        normalizeProduct(product);
         productMapper.update(product);
         return productMapper.findById(id);
     }
@@ -51,5 +53,20 @@ public class ProductService {
 
     public List<String> getCategories() {
         return productMapper.findAllCategories();
+    }
+
+    private void normalizeProduct(Product product) {
+        if (product == null) {
+            return;
+        }
+        if (product.getPrice() != null && product.getOriginalPrice() == null) {
+            product.setOriginalPrice(product.getPrice());
+        }
+        if (product.getPromoStatus() == null || product.getPromoStatus() != 1) {
+            product.setPromoStatus(product.getPromoStatus() == null ? 0 : product.getPromoStatus());
+            product.setPromoPrice(null);
+            product.setPromoStartTime(null);
+            product.setPromoEndTime(null);
+        }
     }
 }

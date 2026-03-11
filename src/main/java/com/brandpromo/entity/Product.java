@@ -14,6 +14,7 @@ public class Product {
     private String category;
     private BigDecimal price;
     private BigDecimal originalPrice;
+    private BigDecimal basePrice;
     private Integer stock;
     private String description;
     private String imageUrl;
@@ -23,6 +24,11 @@ public class Product {
     private Long merchantId;
     private Integer salesCount;
     private Integer viewCount;
+    private BigDecimal promoPrice;
+    private LocalDateTime promoStartTime;
+    private LocalDateTime promoEndTime;
+    private Integer promoStatus;
+    private Integer promoActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
