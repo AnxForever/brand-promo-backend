@@ -46,6 +46,9 @@ public interface ProductMapper {
     /** 诊断: 查 stock 列定义 */
     List<java.util.Map<String, Object>> diagStockColumn();
 
-    /** 诊断: 直接 INSERT 并 RETURNING stock */
-    java.util.Map<String, Object> diagInsertStock(@Param("stock") int stock);
+    /** 诊断: 直接 INSERT stock */
+    int diagInsertStock(@Param("stock") int stock);
+
+    /** 诊断: 读回 stock */
+    java.util.Map<String, Object> diagReadStock();
 }

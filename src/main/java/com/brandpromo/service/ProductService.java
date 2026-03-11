@@ -60,7 +60,8 @@ public class ProductService {
     }
 
     public java.util.Map<String, Object> diagInsertStock(int stock) {
-        return productMapper.diagInsertStock(stock);
+        productMapper.diagInsertStock(stock);
+        return productMapper.diagReadStock();
     }
 
     private void normalizeProduct(Product product) {

@@ -194,9 +194,12 @@
         WHERE table_name = 'product' AND column_name = 'stock'
     </select>
 
-    <select id="diagInsertStock" resultType="java.util.HashMap">
+    <insert id="diagInsertStock" useGeneratedKeys="false">
         INSERT INTO product (name, price, stock, status)
         VALUES ('__diag__', 1.00, #{stock}, 1)
-        RETURNING id, stock
+    </insert>
+
+    <select id="diagReadStock" resultType="java.util.HashMap">
+        SELECT id, stock FROM product WHERE name = '__diag__' ORDER BY id DESC LIMIT 1
     </select>
 </mapper>
