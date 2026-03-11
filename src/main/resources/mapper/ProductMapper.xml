@@ -187,4 +187,16 @@
             sales_count = COALESCE(sales_count, 0) + #{quantity}
         WHERE id = #{id} AND COALESCE(stock, 0) >= #{quantity}
     </update>
+
+    <select id="diagStockColumn" resultType="java.util.HashMap">
+        SELECT column_name, data_type, column_default, is_updatable, generation_expression
+        FROM information_schema.columns
+        WHERE table_name = 'product' AND column_name = 'stock'
+    </select>
+
+    <select id="diagInsertStock" resultType="java.util.HashMap">
+        INSERT INTO product (name, price, stock, status)
+        VALUES ('__diag__', 1.00, #{stock}, 1)
+        RETURNING id, stock
+    </select>
 </mapper>

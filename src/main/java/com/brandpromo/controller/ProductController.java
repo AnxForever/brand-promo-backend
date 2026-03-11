@@ -60,4 +60,13 @@ public class ProductController {
     public ApiResponse<List<String>> categories() {
         return ApiResponse.ok(productService.getCategories());
     }
+
+    @GetMapping("/diag/stock")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Map<String, Object>> diagStock() {
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("columnInfo", productService.diagStockColumn());
+        result.put("insertTest", productService.diagInsertStock(42));
+        return ApiResponse.ok(result);
+    }
 }

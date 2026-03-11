@@ -42,4 +42,10 @@ public interface ProductMapper {
 
     /** 扣减库存 */
     int decrementStock(@Param("id") Long id, @Param("quantity") int quantity);
+
+    /** 诊断: 查 stock 列定义 */
+    List<java.util.Map<String, Object>> diagStockColumn();
+
+    /** 诊断: 直接 INSERT 并 RETURNING stock */
+    java.util.Map<String, Object> diagInsertStock(@Param("stock") int stock);
 }

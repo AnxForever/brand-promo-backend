@@ -55,6 +55,14 @@ public class ProductService {
         return productMapper.findAllCategories();
     }
 
+    public List<java.util.Map<String, Object>> diagStockColumn() {
+        return productMapper.diagStockColumn();
+    }
+
+    public java.util.Map<String, Object> diagInsertStock(int stock) {
+        return productMapper.diagInsertStock(stock);
+    }
+
     private void normalizeProduct(Product product) {
         if (product == null) {
             return;
