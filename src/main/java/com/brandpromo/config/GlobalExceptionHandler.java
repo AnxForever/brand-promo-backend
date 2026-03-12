@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleException(Exception e) {
         log.error("Internal error: ", e);
-        return ApiResponse.error("服务器内部错误，请稍后重试");
+        String detail = e.getClass().getSimpleName() + ": " + e.getMessage();
+        Throwable cause = e.getCause();
+        if (cause != null) {
+            detail += " | Cause: " + cause.getClass().getSimpleName() + ": " + cause.getMessage();
+        }
+        return ApiResponse.error(detail);
     }
 }
