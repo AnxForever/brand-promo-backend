@@ -177,11 +177,17 @@ public class OrderService {
         return order;
     }
 
-    public Map<String, Object> getMyOrders(Integer status, int page, int size) {
-        Long userId = getCurrentUserId();
+    public Map<String, Object> getOrders(Integer status, int page, int size) {
+        User currentUser = getCurrentUser();
         int offset = (page - 1) * size;
-        List<Order> orders = orderMapper.findByUserId(userId, status, offset, size);
-        int total = orderMapper.countByUserId(userId, status);
+        boolean isAdmin = "ADMIN".equals(currentUser.getRole());
+
+        List<Order> orders = isAdmin
+                ? orderMapper.findAll(status, offset, size)
+                : orderMapper.findByUserId(currentUser.getId(), status, offset, size);
+        int total = isAdmin
+                ? orderMapper.countAllByStatus(status)
+                : orderMapper.countByUserId(currentUser.getId(), status);
 
         List<Map<String, Object>> list = new ArrayList<>();
         for (Order o : orders) {

@@ -13,6 +13,8 @@ public interface UserFavoriteMapper {
 
     int deleteByUserAndProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 
+    int deleteByProductId(@Param("productId") Long productId);
+
     int countByUserAndProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 
     List<Product> findProductsByUserId(@Param("userId") Long userId);

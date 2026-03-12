@@ -60,4 +60,11 @@ public class AdController {
         adService.updateStatus(id, status);
         return ApiResponse.ok("Status updated", null);
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MERCHANT')")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        adService.delete(id);
+        return ApiResponse.ok("Ad deleted", null);
+    }
 }

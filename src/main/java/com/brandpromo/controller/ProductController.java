@@ -28,6 +28,16 @@ public class ProductController {
         return ApiResponse.ok(productService.findAll(keyword, category, merchantId, sort, page, size));
     }
 
+    @GetMapping("/storefront")
+    public ApiResponse<Map<String, Object>> storefront(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ApiResponse.ok(productService.findStorefront(keyword, category, sort, page, size));
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<Product> detail(@PathVariable Long id) {
         Product product = productService.findById(id);

@@ -23,4 +23,8 @@
         INSERT INTO product_review (user_id, product_id, order_id, rating, content, images, status)
         VALUES (#{userId}, #{productId}, #{orderId}, #{rating}, #{content}, #{images}, #{status})
     </insert>
+
+    <delete id="deleteByProductId">
+        DELETE FROM product_review WHERE product_id = #{productId}
+    </delete>
 </mapper>

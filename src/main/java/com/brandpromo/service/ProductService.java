@@ -1,9 +1,15 @@
 package com.brandpromo.service;
 
 import com.brandpromo.entity.Product;
+import com.brandpromo.mapper.AdMapper;
+import com.brandpromo.mapper.BrowseHistoryMapper;
+import com.brandpromo.mapper.CartItemMapper;
 import com.brandpromo.mapper.ProductMapper;
+import com.brandpromo.mapper.ProductReviewMapper;
+import com.brandpromo.mapper.UserFavoriteMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,11 +20,29 @@ import java.util.Map;
 public class ProductService {
 
     private final ProductMapper productMapper;
+    private final CartItemMapper cartItemMapper;
+    private final UserFavoriteMapper userFavoriteMapper;
+    private final BrowseHistoryMapper browseHistoryMapper;
+    private final ProductReviewMapper productReviewMapper;
+    private final AdMapper adMapper;
 
     public Map<String, Object> findAll(String keyword, String category, Long merchantId, String sort, int page, int size) {
         int offset = (page - 1) * size;
         List<Product> list = productMapper.findAll(keyword, category, merchantId, sort, offset, size);
         int total = productMapper.countAll(keyword, category, merchantId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("total", total);
+        result.put("page", page);
+        result.put("size", size);
+        return result;
+    }
+
+    public Map<String, Object> findStorefront(String keyword, String category, String sort, int page, int size) {
+        int offset = (page - 1) * size;
+        List<Product> list = productMapper.findStorefront(keyword, category, sort, offset, size);
+        int total = productMapper.countStorefront(keyword, category);
 
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
@@ -47,7 +71,13 @@ public class ProductService {
         return productMapper.findById(id);
     }
 
+    @Transactional
     public void delete(Long id) {
+        cartItemMapper.deleteByProductId(id);
+        userFavoriteMapper.deleteByProductId(id);
+        browseHistoryMapper.deleteByProductId(id);
+        productReviewMapper.deleteByProductId(id);
+        adMapper.clearProductReference(id);
         productMapper.deleteById(id);
     }
 

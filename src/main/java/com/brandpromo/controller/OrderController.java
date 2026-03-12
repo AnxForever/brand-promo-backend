@@ -31,7 +31,7 @@ public class OrderController {
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.ok(orderService.getMyOrders(status, page, size));
+        return ApiResponse.ok(orderService.getOrders(status, page, size));
     }
 
     @GetMapping("/{id}")

@@ -51,4 +51,8 @@ public class AdService {
     public void updateStatus(Long id, Integer status) {
         adMapper.updateStatus(id, status);
     }
+
+    public void delete(Long id) {
+        adMapper.deleteById(id);
+    }
 }

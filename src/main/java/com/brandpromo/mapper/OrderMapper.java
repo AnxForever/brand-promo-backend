@@ -20,7 +20,13 @@ public interface OrderMapper {
                              @Param("offset") int offset,
                              @Param("limit") int limit);
 
+    List<Order> findAll(@Param("status") Integer status,
+                        @Param("offset") int offset,
+                        @Param("limit") int limit);
+
     int countByUserId(@Param("userId") Long userId, @Param("status") Integer status);
+
+    int countAllByStatus(@Param("status") Integer status);
 
     int updateStatus(@Param("id") Long id, @Param("status") int status);
 

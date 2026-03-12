@@ -17,4 +17,6 @@ public interface ProductReviewMapper {
     int countByProductId(@Param("productId") Long productId);
 
     int insert(ProductReview review);
+
+    int deleteByProductId(@Param("productId") Long productId);
 }

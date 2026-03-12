@@ -27,5 +27,9 @@ public interface AdMapper {
 
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
 
+    int deleteById(@Param("id") Long id);
+
+    int clearProductReference(@Param("productId") Long productId);
+
     int countTotal();
 }

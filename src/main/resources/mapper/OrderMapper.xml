@@ -31,12 +31,32 @@
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
+    <select id="findAll" resultType="com.brandpromo.entity.Order">
+        SELECT * FROM orders
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
     <select id="countByUserId" resultType="int">
         SELECT COUNT(*) FROM orders
         <where>
             user_id = #{userId}
             <if test="status != null">
                 AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="countAllByStatus" resultType="int">
+        SELECT COUNT(*) FROM orders
+        <where>
+            <if test="status != null">
+                status = #{status}
             </if>
         </where>
     </select>

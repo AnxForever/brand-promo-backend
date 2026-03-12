@@ -11,6 +11,8 @@ public interface BrowseHistoryMapper {
 
     int upsert(@Param("userId") Long userId, @Param("productId") Long productId);
 
+    int deleteByProductId(@Param("productId") Long productId);
+
     /** 最近浏览的商品 ID 列表 */
     List<Long> findRecentProductIds(@Param("userId") Long userId, @Param("limit") int limit);
 }

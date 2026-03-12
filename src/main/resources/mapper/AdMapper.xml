@@ -63,6 +63,14 @@
         UPDATE advertisement SET status = #{status} WHERE id = #{id}
     </update>
 
+    <delete id="deleteById">
+        DELETE FROM advertisement WHERE id = #{id}
+    </delete>
+
+    <update id="clearProductReference">
+        UPDATE advertisement SET product_id = NULL WHERE product_id = #{productId}
+    </update>
+
     <select id="countTotal" resultType="int">
         SELECT COUNT(*) FROM advertisement
     </select>

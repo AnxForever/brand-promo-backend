@@ -24,6 +24,8 @@ public interface CartItemMapper {
 
     int deleteById(@Param("id") Long id);
 
+    int deleteByProductId(@Param("productId") Long productId);
+
     int deleteByUserId(@Param("userId") Long userId);
 
     int deleteCheckedByUserId(@Param("userId") Long userId);

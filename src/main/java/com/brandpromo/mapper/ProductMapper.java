@@ -20,6 +20,15 @@ public interface ProductMapper {
                  @Param("category") String category,
                  @Param("merchantId") Long merchantId);
 
+    List<Product> findStorefront(@Param("keyword") String keyword,
+                                 @Param("category") String category,
+                                 @Param("sort") String sort,
+                                 @Param("offset") int offset,
+                                 @Param("limit") int limit);
+
+    int countStorefront(@Param("keyword") String keyword,
+                        @Param("category") String category);
+
     Product findById(@Param("id") Long id);
 
     int insert(Product product);

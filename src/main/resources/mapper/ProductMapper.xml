@@ -83,6 +83,44 @@
         </where>
     </select>
 
+    <select id="findStorefront" resultType="com.brandpromo.entity.Product">
+        SELECT <include refid="productSelectColumns" />
+        FROM product p
+        LEFT JOIN brand b ON p.brand_id = b.id
+        <where>
+            AND p.status = 1
+            <if test="keyword != null and keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{keyword}, '%')
+                     OR p.description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="category != null and category != ''">
+                AND p.category = #{category}
+            </if>
+        </where>
+        <choose>
+            <when test="sort == 'price_asc'">ORDER BY <include refid="effectivePriceExpr" /> ASC</when>
+            <when test="sort == 'price_desc'">ORDER BY <include refid="effectivePriceExpr" /> DESC</when>
+            <when test="sort == 'sales'">ORDER BY COALESCE(p.sales_count, 0) DESC</when>
+            <when test="sort == 'newest'">ORDER BY p.created_at DESC</when>
+            <otherwise>ORDER BY p.created_at DESC</otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countStorefront" resultType="int">
+        SELECT COUNT(*) FROM product p
+        <where>
+            AND p.status = 1
+            <if test="keyword != null and keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{keyword}, '%')
+                     OR p.description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="category != null and category != ''">
+                AND p.category = #{category}
+            </if>
+        </where>
+    </select>
+
     <select id="findById" resultType="com.brandpromo.entity.Product">
         SELECT <include refid="productSelectColumns" />
         FROM product p
